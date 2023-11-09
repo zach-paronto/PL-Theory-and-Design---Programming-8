@@ -17,21 +17,67 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     let mut prog = vec![];
     for b in fs::read(env::args().nth(1).unwrap())? {
         match b as char {
-      _ => todo!("Copy implemenation from interp3, but initialize LBrack and RBrack to have usize::max_value()"),
-    }
+            //translating chars into their Ops opcodes
+            // initialize LBrack and RBrack to have usize::max_value()"),
+            '<' => prog.push(Ops::Left),
+            '>' => prog.push(Ops::Right),
+            '+' => prog.push(Ops::Add),
+            '-' => prog.push(Ops::Sub),
+            '[' => prog.push(Ops::LBrack (usize::MAX)),
+            ']' => prog.push(Ops::RBrack (usize::MAX)),
+            '.' => prog.push(Ops::Output),
+            ',' => prog.push(Ops::Input),
+            _ => (), 
+            
+        }
     }
 
     // Notice: we drop bmap here, since it isn't needed.
     let mut bstack = vec![];
     let mut i = 0;
-    todo!("Copy implementation from interp3, but update the LBrack and RBrack ops directly to store the jump information.");
+    while i < prog.len() {
+        match prog[i] {
+            Ops::LBrack(_) => {
+                //if the token is an open bracket, add the position to the stack
+                bstack.push(Ops::LBrack(i));
+            },
+            Ops::RBrack(_) => {
+                let popped = bstack.pop().unwrap();
+                if let Ops::LBrack(jump_pos) = popped {
+                    prog[i] = Ops::RBrack(jump_pos);
+                    prog[jump_pos] = Ops::LBrack(i);
+                }
+            },
+            _ => (),
+        }
+        i += 1;
+    }
 
     let mut cells = vec![0u8; 10000];
     let mut cc = 0;
     let mut pc = 0;
     while pc < prog.len() {
         match prog[pc] {
-            _ => todo!("Copy the implementation from interp3, dropping bmap."),
+            Ops::Left => cc-=1,
+            Ops::Right => cc+=1,
+            Ops::Add => cells[cc]+=1,
+            Ops::Sub => cells[cc]-=1,
+            Ops::LBrack(_) if cells[cc] == 0 => {
+                //if the token is an open bracket, jump to the corresponding position in the opcode
+                if let Ops::LBrack(jump_pos) = prog[pc] {
+                    pc = jump_pos;
+                }
+            }
+            Ops::RBrack(_) if cells[cc] != 0 => {
+                //if the token is a close bracket, jump to the corresponding position in the opcode
+                if let Ops::RBrack(jump_pos) = prog[pc] {
+                    pc = jump_pos;
+                }
+
+            }
+            Ops::Output => io::stdout().write_all(&cells[cc..cc + 1])?,
+            Ops::Input => io::stdin().read_exact(&mut cells[cc..cc + 1])?,
+            _ => (), /* Ignore any other characters */
         }
         pc += 1;
     }

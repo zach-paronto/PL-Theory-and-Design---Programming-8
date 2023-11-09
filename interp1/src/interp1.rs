@@ -10,15 +10,31 @@ fn main() -> Result<(), Box<dyn error::Error>> {
 
     while pc < prog.len() {
         match prog[pc] as char {
-            '<' => todo!(),
-            '>' => todo!(),
-            '+' => todo!(),
-            '-' => todo!(),
+            '<' => cc-=1,
+            '>' => cc+=1,
+            '+' => cells[cc]+=1,
+            '-' => cells[cc]-=1,
             '[' if cells[cc] == 0 => {
-                todo!()
+                let mut iter = 1;
+                while iter > 0 {
+                    pc += 1;
+                    match prog[pc] as char {
+                        '[' => iter +=1,
+                        ']' => iter -=1,
+                        _ => (),
+                    }
+                }
             }
             ']' if cells[cc] != 0 => {
-                todo!()
+                let mut iter = 1;
+                while iter > 0 {
+                    pc -= 1;
+                    match prog[pc] as char {
+                        '[' => iter -=1,
+                        ']' => iter +=1,
+                        _ => (),
+                    }
+                }
             }
             '.' => io::stdout().write_all(&cells[cc..cc + 1])?,
             ',' => io::stdin().read_exact(&mut cells[cc..cc + 1])?,
