@@ -1,7 +1,6 @@
 use std::{
     env, error, fs,
     io::{self, Read, Write},
-    collections::HashMap,
 };
 enum Ops {
     Left,
@@ -35,27 +34,30 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     }
 
     // "b" is for bracket
-    //use HashMap collection to make the map
-    let mut bmap: HashMap<usize, usize> = HashMap::new();// Map from a position in the program to the jump location
+    //use a vector to create the map
+    let mut bmap: Vec<usize> = vec![];// Map from a position in the program to the jump location
     let mut bstack = vec![]; // Used to track nested brackets
     let mut iter = 0;
     while iter < prog.len() {
         match prog[iter] {
             Ops::LBrack => {
-                //if the token is an open bracket, add the position to the stack
+                //rewrite to follow formula above
+                bmap.push(0);
                 bstack.push(iter);
-            },
-            Ops::RBrack => {
-                //if token is close bracket:
-                let popped = bstack.pop().unwrap();
-                bmap.insert(iter, popped);
-                bmap.insert(popped, iter);
 
             },
-            _ => (),
+            Ops::RBrack => {
+                let popped = bstack.pop().unwrap();
+                bmap.push(0);
+                bmap[iter] = popped;
+                bmap[popped] = iter;
+            },
+            _ => {
+                bmap.push(0);
+            },
         }
-    iter += 1;
-}
+        iter += 1;
+    }
 
     let mut pc = 0;
     let mut cells = vec![0u8; 1000000];
@@ -68,11 +70,11 @@ fn main() -> Result<(), Box<dyn error::Error>> {
             Ops::Sub => cells[cc]-=1,
             Ops::LBrack if cells[cc] == 0 => {
                 //if the token is an open bracket, jump to the corresponding mapped position
-                pc = *bmap.get(&pc).unwrap()
+                pc = bmap[pc];
             }
             Ops::RBrack if cells[cc] != 0 => {
                 //if the token is a close bracket, jump to the corresponding mapped position
-                pc = *bmap.get(&pc).unwrap()
+                pc = bmap[pc];
             }
             Ops::Output => io::stdout().write_all(&cells[cc..cc + 1])?,
             Ops::Input => io::stdin().read_exact(&mut cells[cc..cc + 1])?,
