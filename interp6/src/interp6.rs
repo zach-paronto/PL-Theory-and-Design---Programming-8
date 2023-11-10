@@ -16,31 +16,64 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     let mut prog = vec![];
     let bytes = fs::read(env::args().nth(1).unwrap())?;
     let mut i = 0;
+
     while i < bytes.len() {
         match bytes[i] as char {
             '<' => {
                 //using take while, find the number of repeated + signs
-                let count = bytes[i..].iter().take_while(|&&x| x as char == '<').count();
+                /*
+                let count = bytes[i..].iter().take_while(|&&x| x == b'<' as u8).count();
                 prog.push(Ops::Left(count as usize));
-                i += count - 1;
+                i = i + count-1;
+                */
+                let mut count = 1;
+                while i + 1 < bytes.len() && bytes[i + 1] as char == '<' {
+                    count += 1;
+                    i += 1;
+                }
+                prog.push(Ops::Left(count));
             },
             '>' => {
                 //using take while, find the number of repeated + signs
-                let count = bytes[i..].iter().take_while(|&&x| x as char == '>').count();
+                let mut count = 1;
+                while i + 1 < bytes.len() && bytes[i + 1] as char == '>' {
+                    count += 1;
+                    i += 1;
+                }
+                prog.push(Ops::Right(count));
+                /*
+                let count = bytes[i..].iter().take_while(|&&x| x == b'>' as u8).count();
                 prog.push(Ops::Right(count as usize));
-                i += count - 1;
+                i = i + count-1;
+                */
             },
             '+' => {
                 //using take while, find the number of repeated + signs
-                let count = bytes[i..].iter().take_while(|&&x| x as char == '+').count();
+                let mut count = 1;
+                while i + 1 < bytes.len() && bytes[i + 1] as char == '+' {
+                    count += 1;
+                    i += 1;
+                }
+                prog.push(Ops::Add(count));
+                /*
+                let count = bytes[i..].iter().take_while(|&&x| x == b'+' as u8).count();
                 prog.push(Ops::Add(count as u8));
-                i += count - 1;
+                i = i + count-1;
+                */
             },
             '-' => {
                 //using take while, find the number of repeated + signs
-                let count = bytes[i..].iter().take_while(|&&x| x as char == '-').count();
+                let mut count = 1;
+                while i + 1 < bytes.len() && bytes[i + 1] as char == '-' {
+                    count += 1;
+                    i += 1;
+                }
+                prog.push(Ops::Sub(count));
+                /*
+                let count = bytes[i..].iter().take_while(|&&x| x == b'-' as u8).count();
                 prog.push(Ops::Sub(count as u8));
-                i += count - 1;
+                i = i + count-1;
+                */
             },
             '[' => prog.push(Ops::LBrack (usize::MAX)),
             ']' => prog.push(Ops::RBrack (usize::MAX)),
@@ -53,7 +86,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
 
     // Notice: we drop bmap here, since it isn't needed.
     let mut bstack = vec![];
-    let mut i = 0;
+    i = 0;
     while i < prog.len() {
         match prog[i] {
             Ops::LBrack(_) => {
@@ -73,7 +106,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     }
 
     let mut cells = vec![0u8; 10000];
-    let mut cc = 0usize;
+    let mut cc = 0;
     let mut pc = 0;
     while pc < prog.len() {
         match prog[pc] {

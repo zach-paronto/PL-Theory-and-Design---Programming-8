@@ -40,7 +40,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     
     // Notice: we drop bmap here, since it isn't needed.
     let mut bstack = vec![];
-    let mut i = 0;
+    i = 0;
     while i < prog.len() {
         match prog[i] {
             Ops::LBrack(_) => {

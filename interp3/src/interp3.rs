@@ -60,7 +60,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     }
 
     let mut pc = 0;
-    let mut cells = vec![0u8; 1000000];
+    let mut cells = vec![0u8; 10000];
     let mut cc = 0;
     while pc < prog.len() {
         match prog[pc] {
