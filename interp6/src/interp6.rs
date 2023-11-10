@@ -19,36 +19,28 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     while i < bytes.len() {
         match bytes[i] as char {
             '<' => {
-                let mut count = 1;
-                while i + 1 < bytes.len() && bytes[i + 1] as char == '<' {
-                    count += 1;
-                    i += 1;
-                }
-                prog.push(Ops::Left(count));
+                //using take while, find the number of repeated + signs
+                let count = bytes[i..].iter().take_while(|&&x| x as char == '<').count();
+                prog.push(Ops::Left(count as usize));
+                i += count - 1;
             },
             '>' => {
-                let mut count = 1;
-                while i + 1 < bytes.len() && bytes[i + 1] as char == '>' {
-                    count += 1;
-                    i += 1;
-                }
-                prog.push(Ops::Right(count));
+                //using take while, find the number of repeated + signs
+                let count = bytes[i..].iter().take_while(|&&x| x as char == '>').count();
+                prog.push(Ops::Right(count as usize));
+                i += count - 1;
             },
             '+' => {
-                let mut count = 1;
-                while i + 1 < bytes.len() && bytes[i + 1] as char == '+' {
-                    count += 1;
-                    i += 1;
-                }
-                prog.push(Ops::Add(count));
+                //using take while, find the number of repeated + signs
+                let count = bytes[i..].iter().take_while(|&&x| x as char == '+').count();
+                prog.push(Ops::Add(count as u8));
+                i += count - 1;
             },
             '-' => {
-                let mut count = 1;
-                while i + 1 < bytes.len() && bytes[i + 1] as char == '-' {
-                    count += 1;
-                    i += 1;
-                }
-                prog.push(Ops::Sub(count));
+                //using take while, find the number of repeated + signs
+                let count = bytes[i..].iter().take_while(|&&x| x as char == '-').count();
+                prog.push(Ops::Sub(count as u8));
+                i += count - 1;
             },
             '[' => prog.push(Ops::LBrack (usize::MAX)),
             ']' => prog.push(Ops::RBrack (usize::MAX)),

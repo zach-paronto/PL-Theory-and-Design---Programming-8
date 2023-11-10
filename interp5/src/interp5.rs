@@ -23,12 +23,10 @@ fn main() -> Result<(), Box<dyn error::Error>> {
             '>' => prog.push(Ops::Right),
             //'+' altered to also take a u8 value representing the number of repeated + signs
             '+' => {
-                let mut count = 1;
-                while i + 1 < bytes.len() && bytes[i + 1] as char == '+' {
-                    count += 1;
-                    i += 1;
-                }
-                prog.push(Ops::Add(count));
+                //using take while, find the number of repeated + signs
+                let count = bytes[i..].iter().take_while(|&&x| x as char == '+').count();
+                prog.push(Ops::Add(count as u8));
+                i += count - 1;
             },
             '-' => prog.push(Ops::Sub),
             '[' => prog.push(Ops::LBrack (usize::MAX)),
